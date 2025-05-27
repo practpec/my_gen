@@ -12,7 +12,6 @@ sys.path.insert(0, current_dir)
 
 # Importaciones absolutas
 from presentation.controllers.exercise_controller import ExerciseController
-from presentation.views.main_window_improved import MainWindowImproved
 from presentation.views.main_window_simplified import MainWindowSimplified
 
 
