@@ -1,5 +1,5 @@
 """
-Panel mejorado para entrada de parámetros con combobox de objetivo
+Panel mejorado para entrada de parámetros con mejor distribución del espacio
 """
 
 import tkinter as tk
@@ -56,97 +56,103 @@ class ParameterInputPanel:
             print(f"Error cargando valores por defecto: {e}")
     
     def create_panel(self):
-        """Crea el panel de parámetros mejorado"""
-        # Frame principal con diseño horizontal
+        """Crea el panel de parámetros con distribución mejorada"""
+        # Frame principal dividido en 3 columnas
         main_frame = tk.Frame(self.parent, bg='white')
         main_frame.pack(fill="both", expand=True, padx=10, pady=5)
         
-        # Dividir en dos columnas
-        left_frame = tk.Frame(main_frame, bg='white')
-        left_frame.pack(side="left", fill="both", expand=True, padx=(0, 10))
+        # Configurar columnas con pesos específicos
+        main_frame.grid_columnconfigure(0, weight=1)  # Columna 1: Parámetros básicos
+        main_frame.grid_columnconfigure(1, weight=1)  # Columna 2: Parámetros avanzados  
+        main_frame.grid_columnconfigure(2, weight=1)  # Columna 3: Info calculada + botón
         
-        right_frame = tk.Frame(main_frame, bg='white')
-        right_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
-        
-        self.create_basic_parameters(left_frame)
-        self.create_advanced_parameters(right_frame)
+        self.create_basic_parameters(main_frame)
+        self.create_advanced_parameters(main_frame) 
+        self.create_calculated_and_execute(main_frame)
     
     def create_basic_parameters(self, parent):
-        """Parámetros básicos"""
+        """Parámetros básicos en columna 1"""
         basic_frame = tk.LabelFrame(parent, text="⚙️ Parámetros Básicos", 
                                    font=("Arial", 11, "bold"), bg='white')
-        basic_frame.pack(fill="both", expand=True)
+        basic_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
         
         # Objetivo (Combobox)
         self.create_objective_selector(basic_frame)
         
-        # Intervalo
-        self.create_labeled_entry(basic_frame, "🎯 Intervalo A:", self.interval_a, width=10)
-        self.create_labeled_entry(basic_frame, "🎯 Intervalo B:", self.interval_b, width=10)
-        self.create_labeled_entry(basic_frame, "📏 Precisión Δx:", self.delta_x, width=10)
+        # Intervalo y precisión
+        self.create_compact_entry(basic_frame, "🎯 Intervalo A:", self.interval_a, width=8)
+        self.create_compact_entry(basic_frame, "🎯 Intervalo B:", self.interval_b, width=8)
+        self.create_compact_entry(basic_frame, "📏 Precisión Δx:", self.delta_x, width=8)
         
         # Población y generaciones
-        self.create_labeled_entry(basic_frame, "👥 Población:", self.pop_size, width=10)
-        self.create_labeled_entry(basic_frame, "🔄 Generaciones:", self.num_generations, width=10)
+        self.create_compact_entry(basic_frame, "👥 Población:", self.pop_size, width=8)
+        self.create_compact_entry(basic_frame, "🔄 Generaciones:", self.num_generations, width=8)
     
     def create_advanced_parameters(self, parent):
-        """Parámetros avanzados"""
+        """Parámetros avanzados en columna 2"""
         advanced_frame = tk.LabelFrame(parent, text="🔬 Parámetros Avanzados", 
                                       font=("Arial", 11, "bold"), bg='white')
-        advanced_frame.pack(fill="both", expand=True)
+        advanced_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
         
-        # Probabilidades
-        self.create_labeled_entry(advanced_frame, "🔗 Prob. Cruzamiento:", self.prob_crossover, width=10)
-        self.create_labeled_entry(advanced_frame, "🧬 Prob. Mutación X:", self.prob_mutation_x, width=10)
-        self.create_labeled_entry(advanced_frame, "🧬 Prob. Mutación G:", self.prob_mutation_g, width=10)
+        # Probabilidades con mejor espaciado
+        self.create_compact_entry(advanced_frame, "🔗 Prob. Cruzamiento:", self.prob_crossover, width=8)
+        self.create_compact_entry(advanced_frame, "🧬 Prob. Mutación X:", self.prob_mutation_x, width=8)
+        self.create_compact_entry(advanced_frame, "🧬 Prob. Mutación G:", self.prob_mutation_g, width=8)
         
-        # Información calculada
-        self.create_calculated_info(advanced_frame)
+        # # Espacio para estrategias info
+        # self.create_strategies_info(advanced_frame)
+    
+    def create_calculated_and_execute(self, parent):
+        """Información calculada y botón ejecutar en columna 3"""
+        calc_frame = tk.LabelFrame(parent, text="📊 Info Calculada & Control", 
+                                  font=("Arial", 11, "bold"), bg='white')
+        calc_frame.grid(row=0, column=2, sticky="nsew", padx=5, pady=5)
         
-        # Botón ejecutar
-        self.create_execute_button(advanced_frame)
+        # Información calculada compacta
+        self.create_compact_info(calc_frame, "🔢 # Puntos:", self.num_points)
+        self.create_compact_info(calc_frame, "💾 # Bits:", self.num_bits)
+        self.create_compact_info(calc_frame, "🔝 Máx. Decimal:", self.max_decimal)
+        
+        # Separador
+        tk.Frame(calc_frame, height=10, bg='white').pack(pady=5)
+        
+        # # Botón ejecutar (prominente)
+        # self.execute_btn = tk.Button(calc_frame, text="🚀 EJECUTAR\nALGORITMO", 
+        #                             command=self.execute_algorithm,
+        #                             bg='#4CAF50', fg='white', 
+        #                             font=("Arial", 11, "bold"),
+        #                             height=3, width=15)
+        # self.execute_btn.pack(pady=10, padx=5)
     
     def create_objective_selector(self, parent):
-        """Selector de objetivo (minimizar/maximizar)"""
-        frame = tk.Frame(parent, bg='white')
-        frame.pack(fill="x", pady=5, padx=5)
-        
-        tk.Label(frame, text="🎯 Objetivo:", bg='white', 
-                font=("Arial", 10, "bold"), width=15, anchor="w").pack(side="left")
-        
-        objective_combo = ttk.Combobox(frame, textvariable=self.objective_type,
-                                      values=["minimize", "maximize"],
-                                      state="readonly", width=12)
-        objective_combo.pack(side="right")
-        
-        # Callback para cambios
-        objective_combo.bind("<<ComboboxSelected>>", self.on_objective_changed)
-    
-    def create_labeled_entry(self, parent, label: str, variable, width=12):
-        """Crea entrada con etiqueta mejorada"""
+        """Selector de objetivo compacto"""
         frame = tk.Frame(parent, bg='white')
         frame.pack(fill="x", pady=3, padx=5)
         
+        tk.Label(frame, text="🎯 Objetivo:", bg='white', 
+                font=("Arial", 9, "bold"), width=12, anchor="w").pack(side="left")
+        
+        objective_combo = ttk.Combobox(frame, textvariable=self.objective_type,
+                                      values=["minimize", "maximize"],
+                                      state="readonly", width=10)
+        objective_combo.pack(side="right")
+        objective_combo.bind("<<ComboboxSelected>>", self.on_objective_changed)
+    
+    def create_compact_entry(self, parent, label: str, variable, width=8):
+        """Crea entrada compacta"""
+        frame = tk.Frame(parent, bg='white')
+        frame.pack(fill="x", pady=2, padx=5)
+        
         tk.Label(frame, text=label, bg='white', 
-                font=("Arial", 10, "bold"), width=15, anchor="w").pack(side="left")
+                font=("Arial", 9, "bold"), width=12, anchor="w").pack(side="left")
         
         entry = tk.Entry(frame, textvariable=variable, width=width, 
-                        font=("Arial", 10), relief="solid", bd=1)
+                        font=("Arial", 9), relief="solid", bd=1)
         entry.pack(side="right")
         return entry
     
-    def create_calculated_info(self, parent):
-        """Información calculada"""
-        info_frame = tk.LabelFrame(parent, text="📊 Información Calculada", 
-                                  font=("Arial", 10, "bold"), bg='white')
-        info_frame.pack(fill="x", pady=10, padx=5)
-        
-        self.create_info_display(info_frame, "🔢 # Puntos:", self.num_points)
-        self.create_info_display(info_frame, "💾 # Bits:", self.num_bits)
-        self.create_info_display(info_frame, "🔝 Máx. Decimal:", self.max_decimal)
-    
-    def create_info_display(self, parent, label: str, variable):
-        """Crea display de información"""
+    def create_compact_info(self, parent, label: str, variable):
+        """Crea display de información compacto"""
         frame = tk.Frame(parent, bg='white')
         frame.pack(fill="x", pady=2, padx=5)
         
@@ -154,21 +160,29 @@ class ParameterInputPanel:
                 font=("Arial", 9, "bold"), width=12, anchor="w").pack(side="left")
         
         info_label = tk.Label(frame, textvariable=variable, bg='#e3f2fd', 
-                             relief="solid", bd=1, width=10, 
+                             relief="solid", bd=1, width=8, 
                              font=("Arial", 9, "bold"), fg='#1976d2')
         info_label.pack(side="right")
     
-    def create_execute_button(self, parent):
-        """Botón de ejecución"""
-        button_frame = tk.Frame(parent, bg='white')
-        button_frame.pack(fill="x", pady=15, padx=5)
+    def create_strategies_info(self, parent):
+        """Información compacta de estrategias"""
+        info_frame = tk.LabelFrame(parent, text="🛠️ Estrategias", 
+                                  font=("Arial", 10, "bold"), bg='white')
+        info_frame.pack(fill="x", pady=10, padx=5)
         
-        execute_btn = tk.Button(button_frame, text="🚀 EJECUTAR ALGORITMO", 
-                               command=self.execute_algorithm,
-                               bg='#4CAF50', fg='white', 
-                               font=("Arial", 12, "bold"),
-                               height=2, relief="raised", bd=3)
-        execute_btn.pack(fill="x")
+        try:
+            strategies = self.controller.get_strategy_summary()
+            
+            info_text = f"• Emparejamiento: {strategies['emparejamiento']}\n"
+            info_text += f"• Mutación: {strategies['mutacion']}\n" 
+            info_text += f"• Selección: {strategies['seleccion']}"
+            
+            info_label = tk.Label(info_frame, text=info_text, bg='white',
+                                 font=("Arial", 8), justify="left", wraplength=150)
+            info_label.pack(pady=5, padx=5)
+        except:
+            tk.Label(info_frame, text="Estrategias cargadas", bg='white',
+                    font=("Arial", 8)).pack(pady=5)
     
     def setup_auto_update(self):
         """Configura actualización automática"""
@@ -201,7 +215,6 @@ class ParameterInputPanel:
     
     def on_objective_changed(self, event=None):
         """Callback cuando cambia el objetivo"""
-        # Por ahora solo actualiza, en futuras versiones podría cambiar el ejercicio
         pass
     
     def execute_algorithm(self):

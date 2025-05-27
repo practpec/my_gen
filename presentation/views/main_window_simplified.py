@@ -11,7 +11,7 @@ import os
 from presentation.components.parameter_input import ParameterInputPanel
 from presentation.components.progress_dialog import ProgressDialog
 from presentation.visualization.graph_factory import GraphFactory
-# from presentation.utils.video_generator import VideoGenerator
+from presentation.utils.video_generator import VideoGenerator
 
 
 class MainWindowSimplified:
@@ -25,7 +25,7 @@ class MainWindowSimplified:
         # Referencias
         self.parameter_panel = None
         self.graph_factory = GraphFactory()
-        # self.video_generator = VideoGenerator()
+        self.video_generator = VideoGenerator()
         self.current_canvas = None
         self.current_figure = None
         self.graph_buttons = []
@@ -65,10 +65,6 @@ class MainWindowSimplified:
     
     def create_top_section(self, parent):
         """Sección superior - SOLO parámetros y configuración"""
-        # Título principal
-        title_label = tk.Label(parent, text="Configuración del Algoritmo Genético", 
-                              font=("Arial", 16, "bold"), bg='white')
-        title_label.pack(pady=(10, 5))
         
         # Subtítulo con función
         function_info = self.controller.get_function_info()

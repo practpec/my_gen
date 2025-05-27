@@ -6,6 +6,9 @@ from matplotlib.figure import Figure
 from typing import Optional
 import numpy as np
 
+# IMPORTACIÓN ABSOLUTA CORREGIDA
+from infrastructure.genetic_operations.exercise_specific_functions import FunctionFactory
+
 
 class GraphFactory:
     """Factory para crear gráficas"""
@@ -28,7 +31,6 @@ class GraphFactory:
         ax = figure.add_subplot(111)
         
         # Obtener función objetivo
-        from ...infrastructure.genetic_operations.exercise_specific_functions import FunctionFactory
         objective_function = FunctionFactory.create_from_exercise_config(result.exercise_config)
         
         # Generar puntos para la función
@@ -62,13 +64,26 @@ class GraphFactory:
             population_y.append(y_val)
             population_fitness.append(individual.fitness)
         
-        # Encontrar mejor y peor
+        # Encontrar mejor y peor según el tipo de optimización
         if result.is_minimization:
-            best_idx = np.argmax(population_fitness)  # Mayor fitness (menos negativo)
+            # Para minimización: mejor fitness es el más alto (menos negativo)
+            # pero mejor valor real es el más bajo
+            best_idx = np.argmax(population_fitness)  
             worst_idx = np.argmin(population_fitness)
         else:
+            # Para maximización: mejor fitness es el más alto
+            # y mejor valor real también es el más alto
             best_idx = np.argmax(population_fitness)
             worst_idx = np.argmin(population_fitness)
+        
+        # Verificar que los índices sean diferentes
+        if best_idx == worst_idx and len(population_fitness) > 1:
+            # Si son iguales, encontrar el segundo mejor/peor
+            sorted_indices = np.argsort(population_fitness)
+            if result.is_minimization:
+                worst_idx = sorted_indices[0] if sorted_indices[0] != best_idx else sorted_indices[1]
+            else:
+                worst_idx = sorted_indices[0] if sorted_indices[0] != best_idx else sorted_indices[1]
         
         # Plotear población
         scatter = ax.scatter(population_x, population_y, 

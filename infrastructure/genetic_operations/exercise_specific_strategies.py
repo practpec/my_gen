@@ -75,38 +75,53 @@ class ThresholdSwapMutation:
 
 
 class PruneWorstSelection:
-    """Poda eliminando peores individuos"""
+    """Poda eliminando peores individuos (Truncamiento)"""
     
     def __init__(self, prune_percentage: float = 0.30, elitism_count: int = 2):
         self.prune_percentage = prune_percentage
         self.elitism_count = elitism_count
     
-    def select(self, population: Population, num_parents: int) -> List[Individual]:
-        """Selecciona eliminando peores"""
-        # Ordenar por fitness
+    def select(self, population: Population, target_size: int) -> List[Individual]:
+        """
+        Selecciona supervivientes usando truncamiento.
+        Solo elimina individuos si la población excede el tamaño objetivo.
+        """
+        current_size = len(population.individuals)
+        
+        # Si la población no excede el tamaño objetivo, mantener todos
+        if current_size <= target_size:
+            return [ind.copy() for ind in population.individuals]
+        
+        # Si excede, aplicar truncamiento (eliminar los peores)
+        # Ordenar por fitness (descendente - mejores primero)
         sorted_individuals = sorted(
             population.individuals,
             key=lambda ind: ind.fitness,
             reverse=True
         )
         
-        # Mantener mejores
+        # Calcular cuántos mantener
+        # Aplicar porcentaje de poda, pero respetar elitismo y tamaño objetivo
+        individuals_to_eliminate = int(current_size * self.prune_percentage)
+        individuals_to_keep = current_size - individuals_to_eliminate
+        
+        # Asegurar que mantenemos al menos el tamaño objetivo y el elitismo
         individuals_to_keep = max(
+            target_size,
             self.elitism_count,
-            int(len(sorted_individuals) * (1 - self.prune_percentage))
+            individuals_to_keep
         )
         
+        # No podemos mantener más de los que tenemos
+        individuals_to_keep = min(individuals_to_keep, current_size)
+        
+        # Seleccionar los mejores
         kept_individuals = sorted_individuals[:individuals_to_keep]
         
-        # Seleccionar padres
-        selected = []
-        for i in range(num_parents):
-            selected.append(kept_individuals[i % len(kept_individuals)].copy())
-        
-        return selected
+        return [ind.copy() for ind in kept_individuals]
     
     def get_name(self) -> str:
-        return f"Poda de Peores ({self.prune_percentage*100:.0f}% eliminados)"
+        return f"Truncamiento ({self.prune_percentage*100:.0f}% eliminación máxima)"
 
 
 class StrategyFactory:

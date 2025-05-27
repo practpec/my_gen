@@ -43,3 +43,7 @@ class GAParameters:
         """Precisión real alcanzable"""
         max_decimal = self.calculate_max_decimal()
         return (self.x_max - self.x_min) / max_decimal if max_decimal > 0 else 0.0
+    
+    def calculate_num_points(self) -> int:
+        """Número de puntos discretos en el intervalo"""
+        return int((self.x_max - self.x_min) / self.delta_x) + 1
